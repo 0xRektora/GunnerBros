@@ -21,5 +21,8 @@
     "typechain": "^5.1.2",
     "typescript": "^4.4.3",
     "web3": "^1.6.0"
+  },
+  "dependencies": {
+    "solc": "0.8.0"
   }
 }
