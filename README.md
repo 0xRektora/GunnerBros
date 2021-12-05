@@ -2,5 +2,5 @@
 
 - GunnerBros ERC721
 - Gunner ERC20
-- GunnerTokenDistribution
+- GunnerTokenDistributor
 - GameTreasury
