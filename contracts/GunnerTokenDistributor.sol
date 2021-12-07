@@ -27,12 +27,7 @@ contract GunnerTokenDistributor is Ownable {
     IGunnerERC20 immutable gunnerERC20;
     IGunnerERC721 immutable gunnerERC721;
 
-    struct NFTInfo {
-        bool initialRewardTaken;
-        Counters.Counter claimedTimes;
-    }
-
-    mapping(uint256 => NFTInfo) nftInfos;
+    mapping(uint256 => Counters.Counter) nftClaimedTimes;
 
     constructor(address _gunnerErc20, address _gunnerErc721) {
         gunnerERC20 = IGunnerERC20(_gunnerErc20);
@@ -71,7 +66,7 @@ contract GunnerTokenDistributor is Ownable {
             "GunnerTokenDistributor::claim Not the owner"
         );
 
-        NFTInfo storage nftInfo = nftInfos[_tokenId];
+        Counters.Counter storage claimedTimes = nftClaimedTimes[_tokenId];
 
         uint256 rewards = claimableRewards(_tokenId);
         require(
@@ -79,7 +74,7 @@ contract GunnerTokenDistributor is Ownable {
             "GunnerTokenDistributor::claim No claimable rewards"
         );
 
-        nftInfo.claimedTimes.increment();
+        claimedTimes.increment();
 
         bool transfered = gunnerERC20.transfer(owner, rewards);
         require(
@@ -99,26 +94,20 @@ contract GunnerTokenDistributor is Ownable {
     }
 
     function claimableRewards(uint256 _tokenId) public view returns (uint256) {
-        NFTInfo storage nftInfo = nftInfos[_tokenId];
+        Counters.Counter storage claimedTimes = nftClaimedTimes[_tokenId];
         uint256 monthsPassed = (block.timestamp - blockStartTime) /
             1000 /
             60 /
             30;
-        uint256 accruedRewards = monthsPassed -
-            nftInfo.claimedTimes.current() +
-            1;
+        uint256 accruedRewards = monthsPassed - claimedTimes.current() + 1;
         return accruedRewards * monthlyShare();
     }
 
     function monthlyShare() public view returns (uint256) {
-        return totalNFTSupply() / gunnerERC721.maxCap() / 12;
+        return totalGunnerERC20Supply() / gunnerERC721.maxCap() / 12;
     }
 
-    function totalNFTSupply() public view returns (uint256) {
-        return gunnerERC721.balanceOf(address(this));
-    }
-
-    function totalERC20Supply() public view returns (uint256) {
+    function totalGunnerERC20Supply() public view returns (uint256) {
         return gunnerERC20.balanceOf(address(this));
     }
 }
