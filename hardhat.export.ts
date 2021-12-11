@@ -1,17 +1,17 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
-import "@nomiclabs/hardhat-etherscan";
-import "hardhat-deploy";
-import "@nomiclabs/hardhat-ethers";
+import { HardhatUserConfig } from 'hardhat/config';
+import '@nomiclabs/hardhat-waffle';
+import '@typechain/hardhat';
+import '@nomiclabs/hardhat-etherscan';
+import 'hardhat-deploy';
+import '@nomiclabs/hardhat-ethers';
 
 dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.0",
+    version: '0.8.0',
     settings: {
       optimizer: {
         enabled: true,
@@ -22,7 +22,7 @@ const config: HardhatUserConfig = {
   namedAccounts: {
     deployer: 0,
   },
-  defaultNetwork: "hardhat",
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       accounts:
@@ -30,19 +30,18 @@ const config: HardhatUserConfig = {
           ? [
               {
                 privateKey: process.env.PRIVATE_KEY,
-                balance: "100000000000000000000",
+                balance: '100000000000000000000',
               },
             ]
           : [],
       forking: {
-        url: process.env.MAINNET || "",
+        url: process.env.MAINNET || '',
       },
     },
     mainnet: {
-      url: process.env.MAINNET || "",
+      url: process.env.MAINNET || '',
       chainId: Number(process.env.CHAIN_ID || 1),
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
   etherscan: {
