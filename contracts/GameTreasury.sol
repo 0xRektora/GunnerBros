@@ -50,12 +50,12 @@ contract GunnerTreasury is Ownable {
 
     function withdraw(address _to, uint256 _amount) public onlyOwner isInitialized {
         require(
-            block.timestamp > lastWithdrawal.timestamp + minGracePeriod,
-            'GunnerTreasury::withdraw Withdrawals need to be 24h apart'
-        );
-        require(
             block.number > lastWithdrawal.blockNumber + minBlockMargin,
             'GunnerTreasury::withdraw Withdrawal occuring too soon'
+        );
+        require(
+            block.timestamp > lastWithdrawal.timestamp + minGracePeriod,
+            'GunnerTreasury::withdraw Withdrawals need to be 24h apart'
         );
 
         lastWithdrawal.blockNumber = block.number;
