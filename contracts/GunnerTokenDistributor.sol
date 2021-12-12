@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/utils/Counters.sol';
 
 interface IGunnerERC20 is IERC20 {
     function burn(uint256 amount) external;
@@ -40,10 +40,7 @@ contract GunnerTokenDistributor is Ownable {
     event Claim(uint256 indexed _tokenId, address indexed _to, uint256 _value);
 
     modifier isActive() {
-        require(
-            block.timestamp < blockEndTime,
-            "GunnerTokenDistributor unactive"
-        );
+        require(block.timestamp < blockEndTime, 'GunnerTokenDistributor unactive');
         _;
     }
 
@@ -55,32 +52,18 @@ contract GunnerTokenDistributor is Ownable {
     }
 
     function claim(uint256 _tokenId) external isActive {
-        require(
-            _tokenId < gunnerERC721.maxCap(),
-            "GunnerTokenDistributor::claim Wrong tokenId"
-        );
-
         address owner = gunnerERC721.ownerOf(_tokenId);
-        require(
-            owner == msg.sender,
-            "GunnerTokenDistributor::claim Not the owner"
-        );
+        require(owner == msg.sender, 'GunnerTokenDistributor::claim Not the owner');
 
         Counters.Counter storage claimedTimes = nftClaimedTimes[_tokenId];
 
         uint256 rewards = claimableRewards(_tokenId);
-        require(
-            rewards > 0,
-            "GunnerTokenDistributor::claim No claimable rewards"
-        );
+        require(rewards > 0, 'GunnerTokenDistributor::claim No claimable rewards');
 
         claimedTimes.increment();
 
         bool transfered = gunnerERC20.transfer(owner, rewards);
-        require(
-            transfered,
-            "GunnerTokenDistributor::claim Error while claiming"
-        );
+        require(transfered, 'GunnerTokenDistributor::claim Error while claiming');
 
         emit Claim(_tokenId, owner, rewards);
     }
@@ -88,17 +71,14 @@ contract GunnerTokenDistributor is Ownable {
     function burnRemaining() public onlyOwner {
         require(
             block.timestamp > blockEndTime,
-            "GunnerTokenDistributor::burnRemaining Burn can only occur after the distribution is over"
+            'GunnerTokenDistributor::burnRemaining Burn can only occur after the distribution is over'
         );
         gunnerERC20.burn(gunnerERC20.balanceOf(address(this)));
     }
 
     function claimableRewards(uint256 _tokenId) public view returns (uint256) {
         Counters.Counter storage claimedTimes = nftClaimedTimes[_tokenId];
-        uint256 monthsPassed = (block.timestamp - blockStartTime) /
-            1000 /
-            60 /
-            30;
+        uint256 monthsPassed = (block.timestamp - blockStartTime) / 1000 / 60 / 30;
         uint256 accruedRewards = monthsPassed - claimedTimes.current() + 1;
         return accruedRewards * monthlyShare();
     }
