@@ -30,6 +30,11 @@ contract GunnerTreasury is Ownable {
 
     event Withdraw(address indexed _to, uint256 _amount);
 
+    modifier isInitialized() {
+        require(maxWithdrawPerPeriod != 0, 'GunnerTreasury::withdraw Contract is not initialized');
+        _;
+    }
+
     function initiateContract() public onlyOwner {
         require(maxWithdrawPerPeriod != 0, 'GunnerTreasury::initiateContract Contract already initiated');
         uint256 balance = gunnerERC20.balanceOf(address(this));
@@ -38,7 +43,7 @@ contract GunnerTreasury is Ownable {
         maxWithdrawPerPeriod = balance / 100; // 1% of the total balance at contract initialization
     }
 
-    function withdraw(address _to, uint256 _amount) public onlyOwner {
+    function withdraw(address _to, uint256 _amount) public onlyOwner isInitialized {
         require(
             block.timestamp > lastWithdrawal.timestamp,
             'GunnerTreasury::withdraw Withdrawals need to be 24h apart'
@@ -50,7 +55,7 @@ contract GunnerTreasury is Ownable {
         emit Withdraw(_to, _amount);
     }
 
-    function updateGracePeriod(uint256 newPeriod) public onlyOwner {
+    function updateGracePeriod(uint256 newPeriod) public onlyOwner isInitialized {
         require(
             newPeriod > minGracePeriod,
             'GunnerTreasury::updateGracePeriod The period should be superior to 24 hours'
