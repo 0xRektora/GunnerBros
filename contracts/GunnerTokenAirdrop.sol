@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
 interface IGunnerERC20 is IERC20 {
     function burn(uint256 amount) external;
@@ -34,28 +34,16 @@ contract GunnerTokenAirdrop is Ownable {
 
     event Claim(uint256 indexed _tokenId, address indexed _to, uint256 _value);
 
-    function claim(uint256 _tokenId, address _to) public {
-        require(
-            block.timestamp < blockEndTime,
-            "GunnerTokenAirdrop::claim Airdrop finished"
-        );
-        require(
-            !isClaimed(_tokenId),
-            "GunnerTokenAirdrop::claim Airdrop already claimed"
-        );
-        require(
-            gunnerERC721.ownerOf(_tokenId) == _to,
-            "GunnerTokenAirdrop::claim Not the owner"
-        );
+    function claim(uint256 _tokenId) public {
+        require(block.timestamp < blockEndTime, 'GunnerTokenAirdrop::claim Airdrop finished');
+        require(!isClaimed(_tokenId), 'GunnerTokenAirdrop::claim Airdrop already claimed');
+        require(gunnerERC721.ownerOf(_tokenId) == msg.sender, 'GunnerTokenAirdrop::claim Not the owner');
 
         uint256 value = sharesPerNFT();
-        bool success = gunnerERC20.transfer(_to, sharesPerNFT());
+        bool success = gunnerERC20.transfer(msg.sender, sharesPerNFT());
 
-        require(
-            success,
-            "GunnerTokenAirdrop::claim ERC20 token transfer failed"
-        );
-        emit Claim(_tokenId, _to, value);
+        require(success, 'GunnerTokenAirdrop::claim ERC20 token transfer failed');
+        emit Claim(_tokenId, msg.sender, value);
     }
 
     function isClaimed(uint256 _tokenId) public view returns (bool) {
@@ -69,7 +57,7 @@ contract GunnerTokenAirdrop is Ownable {
     function burnRemaining() public onlyOwner {
         require(
             block.timestamp > blockEndTime,
-            "GunnerTokenAirdrop::burnRemaining Burn can only occur after the airdrop is over"
+            'GunnerTokenAirdrop::burnRemaining Burn can only occur after the airdrop is over'
         );
         gunnerERC20.burn(gunnerERC20.balanceOf(address(this)));
     }
