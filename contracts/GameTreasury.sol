@@ -14,12 +14,17 @@ contract GunnerTreasury is Ownable {
     IGunnerERC20 immutable gunnerERC20;
 
     uint256 constant minGracePeriod = 24 hours;
+    // Prevent the 14 sec timestamp attack
+    // We assume 1 block = 2sec (Polygon & Ethereum)
+    uint256 constant minBlockMargin = 10;
+
     uint256 gracePeriod = minGracePeriod;
 
     uint256 maxWithdrawPerPeriod;
     Withdrawal lastWithdrawal;
 
     struct Withdrawal {
+        uint256 blockNumber;
         uint256 timestamp;
         uint256 amount;
     }
@@ -48,6 +53,14 @@ contract GunnerTreasury is Ownable {
             block.timestamp > lastWithdrawal.timestamp,
             'GunnerTreasury::withdraw Withdrawals need to be 24h apart'
         );
+        require(
+            block.number > lastWithdrawal.blockNumber + minBlockMargin,
+            'GunnerTreasury::withdraw Withdrawal occuring too soon'
+        );
+
+        lastWithdrawal.blockNumber = block.number;
+        lastWithdrawal.timestamp = block.timestamp;
+        lastWithdrawal.amount = _amount;
 
         bool success = gunnerERC20.transfer(_to, _amount);
         require(success, 'GunnerTreasury::withdraw Error while transferring assets');
