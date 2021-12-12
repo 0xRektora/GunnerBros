@@ -78,8 +78,10 @@ contract GunnerTokenDistributor is Ownable {
 
     function claimableRewards(uint256 _tokenId) public view returns (uint256) {
         Counters.Counter storage claimedTimes = nftClaimedTimes[_tokenId];
-        uint256 monthsPassed = (block.timestamp - blockStartTime) / 1000 / 60 / 30;
-        uint256 accruedRewards = monthsPassed - claimedTimes.current() + 1;
+        uint256 monthsPassed = (block.timestamp - blockStartTime) / 60 / 60 / 30;
+        uint256 accruedRewards = monthsPassed + 1 > claimedTimes.current()
+            ? monthsPassed + 1 - claimedTimes.current()
+            : 0;
         return accruedRewards * monthlyShare();
     }
 
