@@ -36,7 +36,7 @@ contract GunnerTreasury is Ownable {
     }
 
     function initiateContract() public onlyOwner {
-        require(maxWithdrawPerPeriod != 0, 'GunnerTreasury::initiateContract Contract already initiated');
+        require(maxWithdrawPerPeriod == 0, 'GunnerTreasury::initiateContract Contract already initiated');
         uint256 balance = gunnerERC20.balanceOf(address(this));
         require(balance > 0, 'GunnerTreasury::initiateContract Insufficient amount');
 
