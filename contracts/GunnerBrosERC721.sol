@@ -11,14 +11,17 @@ contract GunnerBros is ERC721Enumerable, Ownable {
     Counters.Counter public tokenIds;
 
     string private baseUri;
-    uint256 constant maxCap = 9999;
 
     constructor(string memory __baseUri) ERC721('GunnerBros', 'GNB') {
         baseUri = __baseUri;
     }
 
+    function maxCap() public pure returns (uint256) {
+        return 9999;
+    }
+
     function mint(address _to) public onlyOwner returns (uint256) {
-        require(tokenIds.current() < maxCap, 'GunnerBros::mint All NFTs have been minted');
+        require(tokenIds.current() < maxCap(), 'GunnerBros::mint All NFTs have been minted');
         tokenIds.increment();
 
         uint256 newItemId = tokenIds.current();
