@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
 interface IGunnerERC20 is IERC20 {}
 
@@ -30,39 +30,30 @@ contract GunnerTreasury is Ownable {
 
     event Withdraw(address indexed _to, uint256 _amount);
 
+    function initiateContract() public onlyOwner {
+        require(maxWithdrawPerPeriod != 0, 'GunnerTreasury::initiateContract Contract already initiated');
+        uint256 balance = gunnerERC20.balanceOf(address(this));
+        require(balance > 0, 'GunnerTreasury::initiateContract Insufficient amount');
+
+        maxWithdrawPerPeriod = balance / 100; // 1% of the total balance at contract initialization
+    }
+
     function withdraw(address _to, uint256 _amount) public onlyOwner {
         require(
             block.timestamp > lastWithdrawal.timestamp,
-            "GunnerTreasury::withdraw Withdrawals need to be 24h apart"
+            'GunnerTreasury::withdraw Withdrawals need to be 24h apart'
         );
 
         bool success = gunnerERC20.transfer(_to, _amount);
-        require(
-            success,
-            "GunnerTreasury::withdraw Error while transferring assets"
-        );
+        require(success, 'GunnerTreasury::withdraw Error while transferring assets');
 
         emit Withdraw(_to, _amount);
-    }
-
-    function initiateContract() public onlyOwner {
-        require(
-            maxWithdrawPerPeriod != 0,
-            "GunnerTreasury::initiateContract Contract already initiated"
-        );
-        uint256 balance = gunnerERC20.balanceOf(address(this));
-        require(
-            balance > 0,
-            "GunnerTreasury::initiateContract Insufficient amount"
-        );
-
-        maxWithdrawPerPeriod = balance / 100; // 1% of the total balance at contract initialization
     }
 
     function updateGracePeriod(uint256 newPeriod) public onlyOwner {
         require(
             newPeriod > minGracePeriod,
-            "GunnerTreasury::updateGracePeriod The period should be superior to 24 hours"
+            'GunnerTreasury::updateGracePeriod The period should be superior to 24 hours'
         );
         gracePeriod = newPeriod;
     }
