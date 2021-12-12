@@ -31,7 +31,7 @@ contract GunnerTreasury is Ownable {
     event Withdraw(address indexed _to, uint256 _amount);
 
     modifier isInitialized() {
-        require(maxWithdrawPerPeriod != 0, 'GunnerTreasury::withdraw Contract is not initialized');
+        require(maxWithdrawPerPeriod != 0, 'GunnerTreasury::isInitialized Contract is not initialized');
         _;
     }
 
