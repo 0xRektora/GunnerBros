@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/utils/Counters.sol';
 
 interface IGunnerERC20 is IERC20 {
     function burn(uint256 amount) external;
@@ -19,8 +18,6 @@ interface IGunnerERC721 is IERC721Enumerable {
 /// @author 0xRektora
 /// @notice Distribute a constant amount of tokens available to claim each month
 contract GunnerTokenDistributor is Ownable {
-    using Counters for Counters.Counter;
-
     IGunnerERC20 immutable gunnerERC20;
     IGunnerERC721 immutable gunnerERC721;
 
@@ -29,7 +26,7 @@ contract GunnerTokenDistributor is Ownable {
 
     uint256 holdingsAtCreation;
 
-    mapping(uint256 => Counters.Counter) nftClaimedTimes;
+    mapping(uint256 => uint256) nftClaimedTimes;
 
     constructor(address _gunnerErc20, address _gunnerErc721) {
         gunnerERC20 = IGunnerERC20(_gunnerErc20);
@@ -65,12 +62,10 @@ contract GunnerTokenDistributor is Ownable {
         address owner = gunnerERC721.ownerOf(_tokenId);
         require(owner == msg.sender, 'GunnerTokenDistributor::claim Not the owner');
 
-        Counters.Counter storage claimedTimes = nftClaimedTimes[_tokenId];
-
-        uint256 rewards = claimableRewards(_tokenId);
+        (uint256 rewards, uint256 accruedRewards) = claimableRewards(_tokenId);
         require(rewards > 0, 'GunnerTokenDistributor::claim No claimable rewards');
 
-        claimedTimes.increment();
+        nftClaimedTimes[_tokenId] += accruedRewards;
 
         bool transfered = gunnerERC20.transfer(owner, rewards);
         require(transfered, 'GunnerTokenDistributor::claim Error while claiming');
@@ -86,13 +81,11 @@ contract GunnerTokenDistributor is Ownable {
         gunnerERC20.burn(gunnerERC20.balanceOf(address(this)));
     }
 
-    function claimableRewards(uint256 _tokenId) public view returns (uint256) {
-        Counters.Counter storage claimedTimes = nftClaimedTimes[_tokenId];
-        uint256 monthsPassed = (block.timestamp - blockStartTime) / 60 / 60 / 30;
-        uint256 accruedRewards = monthsPassed + 1 > claimedTimes.current()
-            ? monthsPassed + 1 - claimedTimes.current()
-            : 0;
-        return accruedRewards * monthlyShare();
+    function claimableRewards(uint256 _tokenId) public view returns (uint256, uint256) {
+        uint256 claimedTimes = nftClaimedTimes[_tokenId];
+        uint256 monthsPassed = (block.timestamp - blockStartTime) / 60 / 60 / 24 / 30 + 1;
+        uint256 accruedRewards = monthsPassed > claimedTimes ? monthsPassed - claimedTimes : 0;
+        return (accruedRewards * monthlyShare(), accruedRewards);
     }
 
     function monthlyShare() public view returns (uint256) {
