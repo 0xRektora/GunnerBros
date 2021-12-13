@@ -36,7 +36,7 @@ const setBalance = async (addr: string, ether: number) => {
 
 describe('GunnerTokenAirdrop', () => {
   beforeEach(async () => await ethers.provider.send('hardhat_reset', []));
-  describe.only('claim', () => {
+  describe('claim', () => {
     it('Should claim 1000 $BRO', async () => {
       const addr = await getAddresses();
       // Minter 1
