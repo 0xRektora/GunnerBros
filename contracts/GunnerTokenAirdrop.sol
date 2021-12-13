@@ -18,14 +18,14 @@ interface IGunnerERC721 is IERC721Enumerable {
 /// @author 0xRektora
 /// @notice $GunnerBros ERC721 holder can claim the $Gunner ERC20 tokens within 1 month after launch
 contract GunnerTokenAirdrop is Ownable {
-    uint256 blockEndTime = 0;
+    uint256 public blockEndTime = 0;
 
-    IGunnerERC20 immutable gunnerERC20;
-    IGunnerERC721 immutable gunnerERC721;
+    IGunnerERC20 public immutable gunnerERC20;
+    IGunnerERC721 public immutable gunnerERC721;
 
-    uint256 holdingsAtCreation;
+    uint256 public holdingsAtCreation;
 
-    mapping(uint256 => bool) claimed;
+    mapping(uint256 => bool) public claimed;
 
     constructor(address _gunnerErc20, address _gunnerErc721) {
         gunnerERC20 = IGunnerERC20(_gunnerErc20);

@@ -18,15 +18,15 @@ interface IGunnerERC721 is IERC721Enumerable {
 /// @author 0xRektora
 /// @notice Distribute a constant amount of tokens available to claim each month
 contract GunnerTokenDistributor is Ownable {
-    IGunnerERC20 immutable gunnerERC20;
-    IGunnerERC721 immutable gunnerERC721;
+    IGunnerERC20 public immutable gunnerERC20;
+    IGunnerERC721 public immutable gunnerERC721;
 
-    uint256 blockStartTime = 0;
-    uint256 blockEndTime = 0;
+    uint256 public blockStartTime = 0;
+    uint256 public blockEndTime = 0;
 
-    uint256 holdingsAtCreation;
+    uint256 public holdingsAtCreation;
 
-    mapping(uint256 => uint256) nftClaimedTimes;
+    mapping(uint256 => uint256) public nftClaimedTimes;
 
     constructor(address _gunnerErc20, address _gunnerErc721) {
         gunnerERC20 = IGunnerERC20(_gunnerErc20);

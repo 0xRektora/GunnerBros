@@ -11,17 +11,17 @@ interface IGunnerERC20 is IERC20 {}
 /// @author 0xRektora
 /// @notice Hold an open a certain amount of tokens per period
 contract GunnerTreasury is Ownable {
-    IGunnerERC20 immutable gunnerERC20;
+    IGunnerERC20 public immutable gunnerERC20;
 
-    uint256 constant minGracePeriod = 24 hours;
+    uint256 public constant minGracePeriod = 24 hours;
     // Prevent the 14 sec timestamp attack
     // We assume 1 block = 2sec (Polygon & Ethereum)
-    uint256 constant minBlockMargin = 10;
+    uint256 public constant minBlockMargin = 10;
 
-    uint256 gracePeriod = minGracePeriod;
+    uint256 public gracePeriod = minGracePeriod;
 
-    uint256 maxWithdrawPerPeriod;
-    Withdrawal lastWithdrawal;
+    uint256 public maxWithdrawPerPeriod;
+    Withdrawal public lastWithdrawal;
 
     struct Withdrawal {
         uint256 blockNumber;
