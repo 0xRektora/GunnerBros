@@ -54,11 +54,11 @@ contract GunnerTokenDistributor is Ownable {
     function claimForAllNFTs() external {
         uint256 tokensInPosession = gunnerERC721.balanceOf(msg.sender);
         for (uint256 i = 0; i < tokensInPosession; i++) {
-            this.claim(gunnerERC721.tokenOfOwnerByIndex(msg.sender, i));
+            claim(gunnerERC721.tokenOfOwnerByIndex(msg.sender, i));
         }
     }
 
-    function claim(uint256 _tokenId) external isActive {
+    function claim(uint256 _tokenId) public isActive {
         address owner = gunnerERC721.ownerOf(_tokenId);
         require(owner == msg.sender, 'GunnerTokenDistributor::claim Not the owner');
 
