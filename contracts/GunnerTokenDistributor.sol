@@ -21,11 +21,13 @@ interface IGunnerERC721 is IERC721Enumerable {
 contract GunnerTokenDistributor is Ownable {
     using Counters for Counters.Counter;
 
+    IGunnerERC20 immutable gunnerERC20;
+    IGunnerERC721 immutable gunnerERC721;
+
     uint256 blockStartTime = 0;
     uint256 blockEndTime = 0;
 
-    IGunnerERC20 immutable gunnerERC20;
-    IGunnerERC721 immutable gunnerERC721;
+    uint256 holdingsAtCreation;
 
     mapping(uint256 => Counters.Counter) nftClaimedTimes;
 
@@ -42,6 +44,14 @@ contract GunnerTokenDistributor is Ownable {
     modifier isActive() {
         require(block.timestamp < blockEndTime, 'GunnerTokenDistributor unactive');
         _;
+    }
+
+    function initiateContract() public onlyOwner {
+        require(holdingsAtCreation == 0, 'GunnerTokenDistributor::initiateContract Contract already initiated');
+        uint256 balance = gunnerERC20.balanceOf(address(this));
+        require(balance > 0, 'GunnerTokenDistributor::initiateContract Insufficient amount');
+
+        holdingsAtCreation = balance;
     }
 
     function claimForAllNFTs() external {
@@ -86,10 +96,6 @@ contract GunnerTokenDistributor is Ownable {
     }
 
     function monthlyShare() public view returns (uint256) {
-        return totalGunnerERC20Supply() / gunnerERC721.maxCap() / 12;
-    }
-
-    function totalGunnerERC20Supply() public view returns (uint256) {
-        return gunnerERC20.balanceOf(address(this));
+        return holdingsAtCreation / gunnerERC721.maxCap() / 12;
     }
 }
