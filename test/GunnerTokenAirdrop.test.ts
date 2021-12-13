@@ -36,17 +36,26 @@ const setBalance = async (addr: string, ether: number) => {
 
 describe('GunnerTokenAirdrop', () => {
   beforeEach(async () => await ethers.provider.send('hardhat_reset', []));
-  describe('claim', () => {
+  describe.only('claim', () => {
     it('Should claim 1000 $BRO', async () => {
       const addr = await getAddresses();
+      // Minter 1
       await setBalance(addr.minter1.address, 1);
+      await (await addr.contract.initiateContract()).wait();
       await (await addr.contract.connect(addr.minter1).claim(1)).wait();
       expect(await addr.erc20.balanceOf(addr.minter1.address)).to.be.above(
+        ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(18)),
+      );
+      // Minter 2
+      await setBalance(addr.minter2.address, 1);
+      await (await addr.contract.connect(addr.minter2).claim(2)).wait();
+      expect(await addr.erc20.balanceOf(addr.minter2.address)).to.be.above(
         ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(18)),
       );
     });
     it("Shouldn't be claimed if 30 days passed", async () => {
       const addr = await getAddresses();
+      await (await addr.contract.initiateContract()).wait();
       await ethers.provider.send('evm_increaseTime', [60 * 60 * 24 * 30]);
       await expect(addr.contract.connect(addr.minter1).claim(0)).to.be.revertedWith(
         'GunnerTokenAirdrop::claim Airdrop finished',
@@ -55,6 +64,7 @@ describe('GunnerTokenAirdrop', () => {
     it("Shouldn't be claimed if not in posession of the desired NFT", async () => {
       const addr = await getAddresses();
       await setBalance(addr.minter1.address, 1);
+      await (await addr.contract.initiateContract()).wait();
       await expect(addr.contract.connect(addr.minter1).claim(2)).to.be.revertedWith(
         'GunnerTokenAirdrop::claim Not the owner',
       );

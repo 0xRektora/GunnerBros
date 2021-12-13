@@ -23,6 +23,8 @@ contract GunnerTokenAirdrop is Ownable {
     IGunnerERC20 immutable gunnerERC20;
     IGunnerERC721 immutable gunnerERC721;
 
+    uint256 holdingsAtCreation;
+
     mapping(uint256 => bool) claimed;
 
     constructor(address _gunnerErc20, address _gunnerErc721) {
@@ -34,7 +36,16 @@ contract GunnerTokenAirdrop is Ownable {
 
     event Claim(uint256 indexed _tokenId, address indexed _to, uint256 _value);
 
+    function initiateContract() public onlyOwner {
+        require(holdingsAtCreation == 0, 'GunnerTokenAirdrop::initiateContract Contract already initiated');
+        uint256 balance = gunnerERC20.balanceOf(address(this));
+        require(balance > 0, 'GunnerTokenAirdrop::initiateContract Insufficient amount');
+
+        holdingsAtCreation = balance;
+    }
+
     function claim(uint256 _tokenId) public {
+        require(holdingsAtCreation > 0, 'GunnerTokenAirdrop::claim Contract not initiated');
         require(block.timestamp < blockEndTime, 'GunnerTokenAirdrop::claim Airdrop finished');
         require(!isClaimed(_tokenId), 'GunnerTokenAirdrop::claim Airdrop already claimed');
         require(gunnerERC721.ownerOf(_tokenId) == msg.sender, 'GunnerTokenAirdrop::claim Not the owner');
@@ -51,7 +62,7 @@ contract GunnerTokenAirdrop is Ownable {
     }
 
     function sharesPerNFT() public view returns (uint256) {
-        return gunnerERC20.balanceOf(address(this)) / gunnerERC721.maxCap();
+        return holdingsAtCreation / gunnerERC721.maxCap();
     }
 
     function burnRemaining() public onlyOwner {
