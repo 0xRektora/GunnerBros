@@ -30,6 +30,10 @@ contract GunnerBros is ERC721Enumerable, Ownable {
         return newItemId;
     }
 
+    function setBaseURI(string calldata _to) external onlyOwner {
+        baseUri = _to;
+    }
+
     function _baseURI() internal view override returns (string memory) {
         return baseUri;
     }
