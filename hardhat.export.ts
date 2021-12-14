@@ -6,6 +6,7 @@ import '@typechain/hardhat';
 import '@nomiclabs/hardhat-etherscan';
 import 'hardhat-deploy';
 import '@nomiclabs/hardhat-ethers';
+import 'hardhat-gas-reporter';
 
 dotenv.config();
 
@@ -46,6 +47,10 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: process.env.BLOCKSCAN_KEY,
+  },
+  gasReporter: {
+    currency: 'ETH',
+    gasPrice: 100,
   },
 };
 
