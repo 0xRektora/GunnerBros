@@ -44,6 +44,7 @@ describe('GunnerBrosERC721', () => {
   it('BaseURI can only be called by owner', async () => {
     const addr = await getAddresses();
     const signer = new ethers.Wallet(ethers.Wallet.createRandom().privateKey, ethers.provider);
+    await setBalance(signer.address,1000)
     await expect(addr.contract.connect(signer).setBaseURI('_')).to.be.revertedWith('Ownable: caller is not the owner');
     await expect(addr.contract.setBaseURI('_')).to.not.be.reverted;
   });

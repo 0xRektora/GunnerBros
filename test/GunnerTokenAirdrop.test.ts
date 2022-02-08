@@ -1,10 +1,19 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
+const setBalance = async (addr: string, ether: number) => {
+  await ethers.provider.send('hardhat_setBalance', [
+    addr,
+    ethers.utils.hexStripZeros(ethers.utils.parseEther(String(ether))._hex),
+  ]);
+};
+
 const getAddresses = async () => {
   const [operationsWallet, gunnerTokenDistributor, gunnerEmission, minter1, minter2] = [...Array(5).keys()].map((e) =>
     ethers.Wallet.createRandom(),
   );
+  await setBalance(minter1.address, 10000);
+  await setBalance(minter2.address, 10000);
   const erc20 = await (await ethers.getContractFactory('GunnerERC20')).deploy();
   const erc721 = await (await ethers.getContractFactory('GunnerBros')).deploy('');
 
@@ -25,13 +34,6 @@ const getAddresses = async () => {
     minter1: new ethers.Wallet(minter1.privateKey, ethers.provider),
     minter2: new ethers.Wallet(minter2.privateKey, ethers.provider),
   };
-};
-
-const setBalance = async (addr: string, ether: number) => {
-  await ethers.provider.send('hardhat_setBalance', [
-    addr,
-    ethers.utils.hexStripZeros(ethers.utils.parseEther(String(ether))._hex),
-  ]);
 };
 
 describe('GunnerTokenAirdrop', () => {
