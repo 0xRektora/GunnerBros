@@ -49,8 +49,9 @@ const config: HardhatUserConfig = {
     apiKey: process.env.BLOCKSCAN_KEY,
   },
   gasReporter: {
-    currency: 'ETH',
-    gasPrice: 100,
+    currency: 'USD',
+    token: 'MATIC',
+    coinmarketcap: process.env.COINMARKETCAP_API ?? '',
   },
 };
 
