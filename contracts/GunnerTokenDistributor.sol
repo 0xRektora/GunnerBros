@@ -11,7 +11,7 @@ interface IGunnerERC20 is IERC20 {
 }
 
 interface IGunnerERC721 is IERC721Enumerable {
-    function maxCap() external view returns (uint256);
+    function maxSupply() external pure returns (uint256);
 }
 
 /// @title GunnerBro ERC20 token distributor
@@ -89,6 +89,6 @@ contract GunnerTokenDistributor is Ownable {
     }
 
     function monthlyShare() public view returns (uint256) {
-        return holdingsAtCreation / gunnerERC721.maxCap() / 12;
+        return holdingsAtCreation / gunnerERC721.maxSupply() / 12;
     }
 }

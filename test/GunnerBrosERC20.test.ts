@@ -23,7 +23,7 @@ describe('GunnerBrosERC20', () => {
     const signer = new ethers.Wallet(addr.gunnerEmission.privateKey, ethers.provider);
     await ethers.provider.send('hardhat_setBalance', [
       signer.address,
-      ethers.utils.hexStripZeros(ethers.utils.parseEther('0.1')._hex),
+      ethers.utils.hexStripZeros(ethers.utils.parseEther('10000')._hex),
     ]);
     await expect(
       addr.contract

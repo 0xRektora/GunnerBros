@@ -11,7 +11,7 @@ interface IGunnerERC20 is IERC20 {
 }
 
 interface IGunnerERC721 is IERC721Enumerable {
-    function maxCap() external view returns (uint256);
+    function maxSupply() external pure returns (uint256);
 }
 
 /// @title GunnerBro ERC20 token Airdrop
@@ -62,7 +62,7 @@ contract GunnerTokenAirdrop is Ownable {
     }
 
     function sharesPerNFT() public view returns (uint256) {
-        return holdingsAtCreation / gunnerERC721.maxCap();
+        return holdingsAtCreation / gunnerERC721.maxSupply();
     }
 
     function burnRemaining() public onlyOwner {
